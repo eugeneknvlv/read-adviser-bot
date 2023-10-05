@@ -1,0 +1,21 @@
+name: Deploy read-adviser-bot
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Tag to deploy'
+        required: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      HOST: root@45.145.65.21
+      DEPLOY_DIRECTORY: /root/apps/read-adviser-bot
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+        with:
+          ref: ${{ github.event.inputs.tag }}
