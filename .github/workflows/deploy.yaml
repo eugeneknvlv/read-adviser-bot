@@ -44,4 +44,5 @@ jobs:
           chmod 600 deploy_key.pem
           ssh -i deploy_key.pem -o StrictHostKeyChecking=no root@${{ env.HOST }} "\
             docker load < /tmp/read-adviser-bot.tar.gz && \
-            docker run -d --name read-adviser-bot -tg-bot-token=${{ secrets.TG_BOT_TOKEN }} --restart always read-adviser-bot:latest"
+            docker run -d --name read-adviser-bot --restart always read-adviser-bot:latest -tg-bot-token=${{ secrets.TG_BOT_TOKEN }}
+  "
