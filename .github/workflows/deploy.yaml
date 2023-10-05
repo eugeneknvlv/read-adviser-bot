@@ -1,17 +1,13 @@
 name: Deploy read-adviser-bot
 
 on:
-  workflow_dispatch:
-    inputs:
-      tag:
-        description: 'Tag to deploy'
-        required: true
+  workflow_dispatch: {}
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
     env:
-      HOST: root@45.145.65.21
+      HOST: 45.145.65.21
       DEPLOY_DIRECTORY: /root/apps/read-adviser-bot
 
     steps:
@@ -20,13 +16,13 @@ jobs:
         with:
           ref: ${{ github.event.inputs.tag }}
 
-      - name: Check if tag exists
-        run: |
-          git fetch --all --tags
-          if ! git tag | grep -q "^${{ github.event.inputs.tag }}$"; then
-            echo "error: Tag '${{ github.event.inputs.tag }}' not found"
-            exit 1
-          fi
+#      - name: Check if tag exists
+#        run: |
+#          git fetch --all --tags
+#          if ! git tag | grep -q "^${{ github.event.inputs.tag }}$"; then
+#            echo "error: Tag '${{ github.event.inputs.tag }}' not found"
+#            exit 1
+#          fi
 
       - name: Build docker image
         run: |
