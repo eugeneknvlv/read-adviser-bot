@@ -19,3 +19,33 @@ jobs:
         uses: actions/checkout@v2
         with:
           ref: ${{ github.event.inputs.tag }}
+
+      - name: Check if tag exists
+        run: |
+          git fetch --all --tags
+          if ! git tag | grep -q "^${{ github.event.inputs.tag }}$"; then
+            echo "error: Tag '${{ github.event.inputs.tag }}' not found"
+            exit 1
+          fi
+
+      - name: Build docker image
+        run: |
+          docker build -t read-adviser-bot .
+
+      - name: Save docker image
+        run: |
+          docker save read-adviser-bot:latest | gzip > read-adviser-bot.tar.gz
+
+      - name: Copy Docker image to server
+        run: |
+          echo "${{ secrets.DEPLOY_SSH_KEY }}" > deploy_key.pem
+          chmod 600 deploy_key.pem
+          scp -i deploy_key.pem -o StrictHostKeyChecking=no read-adviser-bot.tar.gz root@${{ env.HOST }}:/tmp
+
+      - name: Load Docker image on server and run
+        run: |
+          echo "${{ secrets.DEPLOY_SSH_KEY }}" > deploy_key.pem
+          chmod 600 deploy_key.pem
+          ssh -i deploy_key.pem -o StrictHostKeyChecking=no root@${{ env.HOST }} "\
+            docker load < /tmp/read-adviser-bot.tar.gz && \
+            docker run -d --name read-adviser-bot -tg-bot-token=${{ secrets.TG_BOT_TOKEN }} --restart always read-adviser-bot:latest"
